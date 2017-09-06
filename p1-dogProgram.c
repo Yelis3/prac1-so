@@ -7,8 +7,7 @@
 
 #define ELEMENTS 1
 
-const char file[12] ="dataDogs.dat";
-
+const char file[12] = "dataDogs.dat";
 
 //funcion para continuar al presionar una tecla
 int keypress(unsigned char echo) {
@@ -441,6 +440,7 @@ void showNumberRegistrys(int type) {
 
 //funcion para mostrar el menu en pantalla
 void showMenu() {
+  system("clear");
     int *p_sel =  malloc(sizeof(int)); //apuntador a la variable que almacena el numero del menu ingresado por el usuario
 
     printf("\n\n\n\t\t\t\t------   MENU DE GESTION DE LA VETERINARIA  ------       \n\n\n");
@@ -535,26 +535,13 @@ void showMenu() {
     char a;
     keypress(a);
     keypress(a);
-
-
 }
 
+int main() {
+  int running = 1;
+  while(running == 1) {
+    showMenu();
+  }
 
-
-int main()
-{
-
-    int running=1;
-
-
-    while(running==1)
-    {
-
-
-        showMenu();
-
-    }
-
-
-    return 0;
+  return 0;
 }

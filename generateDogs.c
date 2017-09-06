@@ -18,8 +18,8 @@ char* generateName(FILE *f) {
 }
 
 char* generateType() {
-  int ran = rand() % 6;
-  char *types[7] = {"perro", "gato", "hamster", "conejo", "pez","toro","ornitorringo"};
+  int ran = rand() % 4;
+  char *types[5] = {"perro", "gato", "hamster", "conejo", "pez"};
   return types[ran];
 }
 
@@ -46,10 +46,6 @@ char* generateBreed(char animal[]) {
   else if (animal == "pez") {
     return fishB[ran];
   }
-  else{
-    return "bravo";
-  }
-
 }
 
 char generateSex() {
@@ -72,7 +68,7 @@ int main() {
   //open names file
   FILE *n;
   n = fopen("petNames.txt", "r");
-  if(n == NULL) {
+  if(f == NULL) {
     perror("error fopen");
     exit(-1);
   }
@@ -82,7 +78,7 @@ int main() {
 
   for(int i = 0; i<1e07; i++) {
     char * name = generateName(n);
-      name[strlen(name)-1] = 0;
+      name[strlen(name)-1] = 0; //remove the space that is not used by the string
     char * type = generateType();
     int age = rand() % 14;
     char * breed = generateBreed(type);
@@ -90,7 +86,6 @@ int main() {
     float weight = (rand() % 60) + (rand() % 9)*0.1;
     char sex = generateSex();
 
-    p.id = i;
     strcpy(p.name, name);
     strcpy(p.type, type);
     p.age = age;
@@ -118,6 +113,8 @@ int main() {
     perror("error fclose");
     exit(-1);
   }
+
+  system("mv dataDogs.data dataDogs.datr+");
 
   return 0;
 }
