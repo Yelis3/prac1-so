@@ -17,12 +17,14 @@ char* generateName(FILE *f) {
   return name;
 }
 
+//funcion para generar un tipo de animal aleatoriamente
 char* generateType() {
-  int ran = rand() % 4;
-  char *types[5] = {"perro", "gato", "hamster", "conejo", "pez"};
+  int ran = rand() % 6;
+  char *types[7] = {"perro", "gato", "hamster", "conejo", "pez","toro","ornitorringo"};
   return types[ran];
 }
 
+//funcion para generar una raza aleatoria
 char* generateBreed(char animal[]) {
   int ran = rand() % 4;
   char *dogB[5] = {"husky", "labrador", "beagle", "pug", "bulldog"};
@@ -46,8 +48,13 @@ char* generateBreed(char animal[]) {
   else if (animal == "pez") {
     return fishB[ran];
   }
+  else{
+    return "bravo";
+  }
+
 }
 
+//funcion para generar el sexo del animal aleatoriamente
 char generateSex() {
   int ran = rand() % 1;
   if(ran)
@@ -59,26 +66,44 @@ char generateSex() {
 int main() {
   struct dogType p;
   //open records file
-  FILE *f;
-  f = fopen(file, "a");
-  if(f == NULL) {
-    perror("error fopen");
-    exit(-1);
+  FILE* f = fopen(file,"r+");
+
+  //se verifica la existencia del archivo, si no existe, se crea
+  if(f == NULL)
+  {
+    int num_reg = 10000000, r;
+    f = fopen(file,"w");
+
+    if(f == NULL) {  // Validamos errores
+      perror("fopen error main generateDogs");
+    }
+
+    r = fseek(f,0,SEEK_SET); //se situa el indicador de pos. al inicio del archivo para escribir el num de registros
+      
+    if(r!=0)                  
+    {
+      perror("fseek error main generateDogs");
+      exit(-1);
+    }
+
+    fwrite(&num_reg,sizeof(int),ELEMENTS,f); //se pone el numero de registros a escribir
+
+    
   }
-  //open names file
+    
+  //se abre el archivo que contiene los nombres de los animales para generar las estucturas
   FILE *n;
   n = fopen("petNames.txt", "r");
-  if(f == NULL) {
-    perror("error fopen");
+  if(n == NULL) {
+    perror("error fopen main generateDogs 2");
     exit(-1);
   }
 
-  int totalRecords = 10000000;
-  writeFile(file, &totalRecords, sizeof(int), 1);
+  for(int i = 0; i<1e07; i++) { //se generan 10'000.000 de estructuras y se escriben en el archivo dataDogs.dat
 
-  for(int i = 0; i<1e07; i++) {
+
     char * name = generateName(n);
-      name[strlen(name)-1] = 0; //remove the space that is not used by the string
+    name[strlen(name)-1] = 0;
     char * type = generateType();
     int age = rand() % 14;
     char * breed = generateBreed(type);
@@ -86,6 +111,7 @@ int main() {
     float weight = (rand() % 60) + (rand() % 9)*0.1;
     char sex = generateSex();
 
+    p.id = i;
     strcpy(p.name, name);
     strcpy(p.type, type);
     p.age = age;
@@ -96,7 +122,7 @@ int main() {
 
     int r = fwrite(&p, sizeof(struct dogType), ELEMENTS, f);
     if(r != ELEMENTS){
-      perror("error fwrite");
+      perror("error fwrite main generateDogs");
       exit(-1);
     }
   }
@@ -104,17 +130,15 @@ int main() {
   //close records file
   int r = fclose(f);
   if (r != 0) {
-    perror("error fclose");
+    perror("error fclose main generateDogs f");
     exit(-1);
   }
   //close names file
   r = fclose(n);
   if (r != 0) {
-    perror("error fclose");
+    perror("error fclose main generateDogs n");
     exit(-1);
   }
-
-  system("mv dataDogs.data dataDogs.datr+");
 
   return 0;
 }

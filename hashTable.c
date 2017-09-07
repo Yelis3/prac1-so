@@ -2,211 +2,213 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "mainMethods.c"
 
-// estructura con toda la información del registro
-// struct dogType {
-//   char name[32];
-//   char type[32];
-//   int age;          //años
-//   char breed[16];
-//   int height;       //en cm
-//   float weight;     //en kg
-//   char sex;         //H o M
-// };
-
-const int SIZE = 1800;
+const int SIZE = 2000; //tamano de la tabla hash
 
 struct Node {
-  int data;
-  char* key;
-  struct Node *PN;
-  struct Node *NN;
+  int data;   //id unico de cada registro
+  char *key;
+  struct Node *PN; //nodo anterior
+  struct Node *NN; //nodo siguiente
 };
 
-struct Node* hashArray[1800];
+struct NodeN {
+  int data;   //id unico de cada registro
+  struct Node *PN; 
+  
+  };
 
-
-char* getKeyFromId(int data) {
-  char* key = (char*)malloc(sizeof(char)*32);
-  //open records file
-  FILE *f;
-  f = fopen(file, "r");
-  if(f == NULL) {
-    perror("error fopen");
-    exit(-1);
-  }
-
-  fseek(f, data * sizeof(struct dogType) + 4, SEEK_SET);
-  fgets(key, 32, f);
-
-  //close records file
-  int r = fclose(f);
-  if (r != 0) {
-    perror("error fclose");
-    exit(-1);
-  }
-
-  return key;
-}
-
-// Function that assigns a unique hash key to a specific name value
+// Funcion que calcula el hash segun el nombre del registro
 int hashCode(char* key) {
-  int hash = 0;
-  for (int i = 0; i < strlen(key); i++) {
+
+  int hash = 0, i;
+
+  for (i = 0; i < strlen(key); i++) {
     hash += key[i] * (i * 2 + 1);
   }
+
   hash = hash % SIZE;
 
-  while((hashArray[hash] != NULL) && hashArray[hash]->key != key) {
+  while((hashArray[hash] != NULL) && hashArray[hash]->key != key) {//detectar colisiones y reasignar el hash
     hash = (hash + 7) % SIZE;
   }
 
-  // printf("--- hash final %d\n", hash);
   return hash;
 }
 
+//funcion para insertar un nodo
+
 void insert(char* key, int data) {
-  struct Node *item = (struct Node*) malloc(sizeof(struct Node));
-  struct Node *aux = (struct Node*) malloc(sizeof(struct Node));
-  item->data = data;
-  item->key = key;
-  //  item->NN = NULL;
-  //  item->PN = NULL;
 
-  //get the hash
   int hashIndex = hashCode(key);
-  aux = hashArray[hashIndex];
 
-  if(aux == NULL) {
-    hashArray[hashIndex] = item;
-    // printf("---The name %s has been inserted for the first time\n", item->key);
-  } else if(aux->data == -1 && item->key == aux->key) {
-    hashArray[hashIndex] = item;
-    // printf("---The name %s has been deleted before\n", item->key);
-  } else {
-    while(aux->NN != NULL) {
-      aux = aux->NN;
+  printf("%d\n", hashIndex );
+
+  struct Node *firstNode = (struct Node*) malloc(sizeof(struct Node));
+  struct Node *newNode = (struct Node*) malloc(sizeof(struct Node));
+  struct Node *walkerNode = (struct Node*) malloc(sizeof(struct Node));
+
+  firstNode = hashArray[hashIndex];
+
+
+  newNode->data = data; //se guarda el id del registro
+  newNode->key = key;   //se guarda el nombre del registro
+
+  if(firstNode==NULL){
+
+    hashArray[hashIndex]=newNode;
+    printf("EL NODO ES EL PRIMER NODO QUE EXISTE EN ESTA LISTA\n");
+
+
+  }else if(firstNode->key==key && firstNode->data==-1){ //ya se ha asignado esta ranura de la hash a un nombre especifico pero no hay ningun nodo porque los que habian han sido eliminados
+
+    hashArray[hashIndex] = newNode;
+
+    printf("EL NODO ES EL PRIMER NODO DE LA LISTA LUEGO DE LA ELIMINACION DE LOS ANTERIORES\n");
+
+  }else{
+
+
+    walkerNode = firstNode;
+    while(walkerNode->NN!=NULL){
+      walkerNode=walkerNode->NN;
+      printf("SE HA PASADO POR UN NODO\n");
     }
-    aux->NN = item;
-    item->PN = aux;
-    // printf("---The name %s has been inserted before\n", item->key);
+
+    newNode->PN = walkerNode; // se asigna el nodo anterior del nuevo nodo como el primer nodo de la ranura
+
+    walkerNode->NN = newNode; //se asigna el nuevo nodo como el siguiente nodo del primer nodo de la ranura
+
+    printf("EL NODO SE HA INSERTADO AL FINAL DE LA LISTA\n");
+
+
   }
 
-  // printf("---Name %s in the hash %d inserted\n\n", hashArray[hashIndex]->key, hashIndex);
 }
 
-// Function that searches a node from a name
-struct Node *search(char* key) {
-  //get the hash
+//funcion para borrar un nodo de la Tabla hash
+void delete(int data, char* key) {
+
+  //char* key = getNameFromId(data);
   int hashIndex = hashCode(key);
-  struct Node *item = (struct Node*) malloc(sizeof(struct Node));
 
-  item = hashArray[hashIndex];
+  struct Node *firstNode = (struct Node*) malloc(sizeof(struct Node));
+  struct Node *auxNode = (struct Node*) malloc(sizeof(struct Node));
+  
+  
+  firstNode = hashArray[hashIndex];
 
-  while(item != NULL) {
-    if(item->key == key && item->data != -1)
-    return item;
+  if(firstNode==NULL){
 
-    item = item->NN;
-  }
+    //printf("NO HAY NADA PARA BORRAR\n");
 
-  return NULL;
-}
+  }else{
 
-void delete(int data) {
-  char* key = getKeyFromId(data);
-  int hashIndex = hashCode(key);
-  struct Node *item = hashArray[hashIndex];
-  bool success = false;
+    //printf("ES POSIBLE QUE SE PUEDA BORRAR\n");
 
 
-  //move in array until an empty
-  while(item != NULL) {
-    if(item->data == data) {
-      if(item->PN == NULL && item->NN != NULL) {
-        printf("Es el primero\n");
-        struct Node *next = item->NN;
-        hashArray[hashIndex] = next;
-        next->PN = NULL;
-        item = NULL;
+    if(firstNode->data == data && firstNode->NN == NULL){ //el nodo es el unico en la lista
+
+      firstNode->data = -1;
+
+      //printf("EL NODO SE BORRO, ERA EL UNICO EN LA LISTA\n");
+
+    }else if(firstNode->data == data && firstNode->NN!=NULL){ //el nodo es el primero pero hay mas nodos en la lista
+
+      hashArray[hashIndex] = firstNode->NN;
+
+      //printf("EL NODO SE BORRO, ERA EL PRIMERO EN LA LISTA\n");
+
+
+    }else{//el nodo esta en medio o al final de la lista
+
+      struct Node *walkerNode = (struct Node*) malloc(sizeof(struct Node));
+      walkerNode = firstNode;
+      bool flag = true;
+
+      while(flag){
+
+        if(walkerNode->NN != NULL){
+
+          if(walkerNode->data == data){//se borra del medio
+
+            auxNode = walkerNode; 
+
+            walkerNode = walkerNode->PN;
+
+            walkerNode->NN = auxNode->NN;
+
+            walkerNode = auxNode->NN;
+
+            walkerNode->PN = auxNode->PN;
+
+            //printf("EL NODO ESTABA EN UNA POS INTERMEDIA DE LA LISTA\n");
+
+            flag = false;
+          }
+
+        }else{
+
+          if(walkerNode->data == data){//se borra del final de la lista (ultimo)
+
+            walkerNode = walkerNode->PN;
+            walkerNode->NN = NULL;
+
+            //printf("EL NODO ERA EL ULTIMO EN LA LISTA, SE BORRO\n");
+
+            flag = false;
+          }
+
+          break;
+        }
+
+        walkerNode = walkerNode->NN;
+       
       }
-      else if(item->NN != NULL && item->PN != NULL) {
-        printf("Es de en medio\n");
-        struct Node *prev = item->PN;
-        struct Node *next = item->NN;
-        prev->NN = item->NN;
-        next->PN = item->PN;
-        item = NULL;
-      }
-      else if(item->PN != NULL && item->NN == NULL)  {
-        printf("Es el ultimo\n");
-        struct Node *prev = item->PN;
-        prev->NN = NULL;
-        item = NULL;
-      }
-      else {
-        printf("Es el unico\n");
-        item->data = -1;
-      }
-      success = true;
-    } else {
-      item = item->NN;
+
+      if(flag){
+
+        //printf("NO SE PUDO BORRAR NADA\n");
+
+     }
+
     }
   }
-
-  if(success) {
-    printf("---The name %s with id %d has been deleted\n", key, data);
-  }
 }
 
-void showTable() {
-  struct Node *item;
-  int count = 0;
-  printf("\n---- HASH TABLE ----\n");
-  for (int i = 0; i < SIZE; i++) {
-    item = hashArray[i];
-    while(item != NULL) {
-      if(item->data != -1) {
-        count ++;
-        printf("Nombre: %s, ID: %d\n", item->key, item->data);
+//funcion para mostrar la hash
+
+void showHashTable(){
+
+  int i;
+ 
+  struct Node *walkerNode = malloc(sizeof(struct Node));
+
+  for (i=0; i<SIZE; i++){
+
+    walkerNode = hashArray[i];
+
+    if(walkerNode==NULL){
+
+      printf("RANURA VACIA\n");
+
+    }else{
+
+      printf("( %s , %d )  ",walkerNode->key, walkerNode->data );
+
+      while(walkerNode->NN != NULL){
+
+        walkerNode = walkerNode->NN;
+
+        printf("( %s , %d )  ",walkerNode->key, walkerNode->data );
+
+
       }
-      item = item->NN;
+
+      printf("\n");
+
     }
-  }
-  if(count == 0) {
-    printf("There are no pets in this hash\n");
-  }
-}
 
-int main() {
-
-  int qty = recordsQty();
-  char* key = (char*)malloc(sizeof(char)*32);;
-
-  //open records file
-  FILE *f;
-  f = fopen("dataDogs.datr+", "r");
-  if(f == NULL) {
-    perror("error fopen hashTable main");
-    exit(-1);
   }
 
-  for (int i = 0; i < qty; i++) {
-    fseek(f, i * sizeof(struct dogType) + 4, SEEK_SET);
-    fgets(key, 32, f);
-    printf("%d\n", i + 1);
-
-    //generating the hash from the dataDogs.datr+ file
-    insert(key, i + 1);
-  }
-
-  //close records file
-  int r = fclose(f);
-  if (r != 0) {
-    perror("error fclose");
-    exit(-1);
-  }
-
-  return 0;
 }
