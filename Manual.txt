@@ -1,0 +1,36 @@
+--------------------------------------------------------------------------------------------------------------------------
+------------------MANUAL DE USO DE LA APLICACIÓN CLIENTE-SERVIDOR PARA GESTIÓN DE UNA VETERINARIA v2.0--------------------
+--------------------------------------------------------------------------------------------------------------------------
+
+Programa Servidor: p2-dogServer.c
+Programa Cliente:  p2-dogClient.c
+--------------------------------------------------------------------------------------------------------------------------
+Servidor:
+--------------------------------------------------------------------------------------------------------------------------
+El servidor se encarga de recibir peticiones por parte de los clientes para realizar operaciones sobre los registros
+en el archivo dataDogs.dat. Estas peticiones pueden ser:
+
+1. Ingresar registro (se ingresa un nuevo registro en el archivo)
+2. Ver registro (se muestra la información correspondiente a un registro)
+3. Borrar registro (se elimina un registro del archivo)
+4. Buscar registro (se muestran todos los registros cuyo campo Nombre coincida con la cadena ingresada para la búsqueda)
+5. Salir del sistema (se cierra la conexión con el cliente, es decir, el socket creado para la gestión de la comunicación)
+
+El número máximo de clientes que pueden conectarse con el servidor es 32.
+
+El servidor no muestra mensaje alguno, solamente gestiona las operaciones y la comunicación con el cliente.
+
+El servidor gestiona un archivo llamado serverDogs.log, en donde registra todas las operaciones realizadas.
+
+--------------------------------------------------------------------------------------------------------------------------
+CLiente: 
+--------------------------------------------------------------------------------------------------------------------------
+El programa cliente muestra un menú con una interfaz que permite al usuario visualizar las opciones descritas anteriormente.
+El programa solicita al usuario el ingreso de un número de 1 a 5 para elegir una de las opciones disponibles.
+El programa cliente, a través de la comunicación por sockets, envía y recibe datos del servidor para mostrar en su interfaz 
+la información relacionada con la operación que solicita el usuario.
+El programa permanece en ejecución hasta que el usuario solicite su finalización (por medio de la opción 5 del menú).
+--------------------------------------------------------------------------------------------------------------------------
+Desarrollado por:
+David Hormaza
+Yeliana Torres
