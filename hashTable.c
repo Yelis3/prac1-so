@@ -12,11 +12,6 @@ struct Node {
   struct Node *NN; //nodo siguiente
 };
 
-struct NodeN {
-  int data;   //id unico de cada registro
-  struct Node *PN; 
-  
-  };
 
 // Funcion que calcula el hash segun el nombre del registro
 int hashCode(char* key) {
@@ -42,7 +37,7 @@ void insert(char* key, int data) {
 
   int hashIndex = hashCode(key);
 
-  printf("%d\n", hashIndex );
+  //printf("%d\n", hashIndex );
 
   struct Node *firstNode = (struct Node*) malloc(sizeof(struct Node));
   struct Node *newNode = (struct Node*) malloc(sizeof(struct Node));
@@ -57,14 +52,14 @@ void insert(char* key, int data) {
   if(firstNode==NULL){
 
     hashArray[hashIndex]=newNode;
-    printf("EL NODO ES EL PRIMER NODO QUE EXISTE EN ESTA LISTA\n");
+    //printf("EL NODO ES EL PRIMER NODO QUE EXISTE EN ESTA LISTA\n");
 
 
   }else if(firstNode->key==key && firstNode->data==-1){ //ya se ha asignado esta ranura de la hash a un nombre especifico pero no hay ningun nodo porque los que habian han sido eliminados
 
     hashArray[hashIndex] = newNode;
 
-    printf("EL NODO ES EL PRIMER NODO DE LA LISTA LUEGO DE LA ELIMINACION DE LOS ANTERIORES\n");
+    //printf("EL NODO ES EL PRIMER NODO DE LA LISTA LUEGO DE LA ELIMINACION DE LOS ANTERIORES\n");
 
   }else{
 
@@ -72,14 +67,14 @@ void insert(char* key, int data) {
     walkerNode = firstNode;
     while(walkerNode->NN!=NULL){
       walkerNode=walkerNode->NN;
-      printf("SE HA PASADO POR UN NODO\n");
+      //printf("SE HA PASADO POR UN NODO\n");
     }
 
     newNode->PN = walkerNode; // se asigna el nodo anterior del nuevo nodo como el primer nodo de la ranura
 
     walkerNode->NN = newNode; //se asigna el nuevo nodo como el siguiente nodo del primer nodo de la ranura
 
-    printf("EL NODO SE HA INSERTADO AL FINAL DE LA LISTA\n");
+    //printf("EL NODO SE HA INSERTADO AL FINAL DE LA LISTA\n");
 
 
   }
