@@ -69,8 +69,7 @@ int main() {
   FILE* f = fopen(file,"r+");
 
   //se verifica la existencia del archivo, si no existe, se crea
-  if(f == NULL)
-  {
+  if(f == NULL) {
     int num_reg = 10000000, r;
     f = fopen(file,"w");
 
@@ -79,18 +78,15 @@ int main() {
     }
 
     r = fseek(f,0,SEEK_SET); //se situa el indicador de pos. al inicio del archivo para escribir el num de registros
-      
-    if(r!=0)                  
-    {
+
+    if(r!=0) {
       perror("fseek error main generateDogs");
       exit(-1);
     }
 
     fwrite(&num_reg,sizeof(int),ELEMENTS,f); //se pone el numero de registros a escribir
-
-    
   }
-    
+
   //se abre el archivo que contiene los nombres de los animales para generar las estucturas
   FILE *n;
   n = fopen("petNames.txt", "r");
@@ -99,9 +95,8 @@ int main() {
     exit(-1);
   }
 
-  for(int i = 0; i<1e07; i++) { //se generan 10'000.000 de estructuras y se escriben en el archivo dataDogs.dat
-
-
+  int i;
+  for(i = 0; i<1e07; i++) { //se generan 10'000.000 de estructuras y se escriben en el archivo dataDogs.dat
     char * name = generateName(n);
     name[strlen(name)-1] = 0;
     char * type = generateType();
