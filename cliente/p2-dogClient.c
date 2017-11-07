@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 3563
+#define PORT 3562
 
 const char ip[] = "127.0.0.1";
 
@@ -178,7 +178,7 @@ void showMenu(int clientfd) {
             printf("La historia clínica ha sido abierta por otro cliente. Espere unos minutos.\n");
             printf(">> Esperando a que la historia clínica deje de ser editada .............................\n");
             r = recv(clientfd, &fileSize, sizeof(int), 0);
-            if(r != sizeof(struct dogType)) {
+            if(r != sizeof(int)) {
               perror("Recv error 45");
               exit(-1);
             }
