@@ -335,7 +335,7 @@ void minToMay(char string[]) {
   }
 }
 
-char* getClinicalHistoryName(char x, struct dogType *dog) {
+char* getClinicalHistoryName(int x, struct dogType *dog) {
   char *file_Name, *ext=".txt", *title = "-HISTORIA-CLINICA-", *num = "NumReg:";
   char number[10];
   int r;
@@ -392,12 +392,56 @@ struct dogType* getDog(int x) {
   return dog;
 }
 
-void deleteClinicalHistory(char* file_Name) {
-  char *command = "rm ";
-  strcat(command, file_Name);
-  printf("%s\n", command);
-  system(command);
-  return;
+void deleteClinicalHistory(int x, int ind){
+  //printf("entraste");
+  FILE *f;
+  struct dogType *dog= malloc(sizeof(struct dogType));
+  int r;
+  char number[10];
+
+  sprintf(number, "%d", x); //se pasa el numero del registro a una cadena para formar el nombre de la h. clinica
+   
+  f = fopen(file,"r"); //vamos a leer el archivo! :3
+  if(f == NULL) {
+    perror("error fopen openClinicalHistory");
+    exit(-1);
+  }
+
+  fseek(f, (x-1) * (sizeof(struct dogType)) + 4, SEEK_SET);
+  r = fread(dog, sizeof(struct dogType), 1, f);
+  if(r != ELEMENTS){
+    perror("fread error openClinicalHistory");
+    exit(-1);
+  }
+
+  r = fclose(f);
+  if(r!=0){
+    perror("fclose error openClinicalHistory");
+    exit(-1);
+  }
+
+  //se forma el nombre del archivo que contiene la historia clinica de la mascota
+  char *file_Name;
+  char *ext=".txt";
+  char *title = "-HISTORIA-CLINICA-";
+  char *num = "NumReg:";
+  char s[100];
+
+  file_Name = dog->name;
+
+  strcat(file_Name, title);
+  strcat(file_Name, num);
+  strcat(file_Name, number);
+  strcat(file_Name, ext);
+  strcpy(s, file_Name);
+
+  printf("%s",file_Name);
+  
+  if(ind == -1){//se borra la H. clinica si se borra el registro
+    remove(file_Name);
+    return;
+  }
+
 }
 
 void copyInFile(char* file_Name, void *data, int size) {
@@ -488,7 +532,7 @@ bool isClinicalHistoryAvailable(char s[100]) {
   fseek(a, 1, SEEK_SET);
 
   if(fileSize == 0) {               //Si no existe a HC, se crea e inicializa como 'disponible'
-    printf("La HC no existía. Vamo a crearla\n");
+    //printf("La HC no existía. Vamo a crearla\n");
     copyInFile(s, "Escribe aquí la información de la Historia Clínica", 53);
     available = true;
   }
@@ -513,7 +557,7 @@ void deleteRegistry(int x) {
     FILE* f;
     FILE* c;
     int r;
-
+    
     f = fopen(file, "r");
     if(f == NULL) { // Validamos errores
       perror("fopen error deleteRegistry");
@@ -547,10 +591,7 @@ void deleteRegistry(int x) {
           fwrite(dog, sizeof(struct dogType), 1, c);
         }
       }
-      char s[100];
-      strcpy(s, getClinicalHistoryName(x, dog));
-      deleteClinicalHistory(s);
-
+      
       free(dog);
     }
 

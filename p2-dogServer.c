@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include "pthread.h"
-#define PORT 3563
+#define PORT 3562
 #define MAX_CLIENTS 32
 
 //variables globales para manejar el numero de clientes conectados al server, y la escritura en los archivos .dat y .log
@@ -182,7 +182,7 @@ void *clientManager(void *socket) {
 
           while(!isClinicalHistoryAvailable(s)) { //Mientras que la historia cínica esté ocupada, espere
             r = send(serverfd, &fileSize, sizeof(int), 0);
-            printf("No está disponible\n");
+            //printf("No está disponible\n");
             sleep(1);
           }
 
@@ -191,7 +191,7 @@ void *clientManager(void *socket) {
           fileSize = ftell(a) -1;         // obtiene el tamaño del archivo (se resta 1 por el campo de validación)
           fseek(a, 1, SEEK_SET);          // posiciona el puntero al inicio (comienza desde 1 por el campo de validación)
           r = send(serverfd, &fileSize, sizeof(int), 0); //envia el tamaño de la historia clinica
-          printf("tamaño antes de enviarlo: %d\n", fileSize);
+          //printf("tamaño antes de enviarlo: %d\n", fileSize);
 
           if(fileSize != 0) { //envia la historia clinica caracter por caracter
             char tmp;
@@ -223,7 +223,7 @@ void *clientManager(void *socket) {
           }
           bool available = false;
           r = fwrite(&available, sizeof(bool), 1, a);
-          printf("La historia clinica %s está ocupada\n", s);
+          //printf("La historia clinica %s está ocupada\n", s);
           if(r != 1) {
             perror("error fwrite server 2");
             exit(-1);
@@ -276,6 +276,8 @@ void *clientManager(void *socket) {
         exit(-1);
       }
       if(num_reg != -1) {
+        deleteClinicalHistory(num_reg,-1);
+        sleep(1);
         deleteRegistry(num_reg);
         sprintf(buffer, "%d", num_reg);
         r = send(serverfd, &validation, sizeof(int), 0);
